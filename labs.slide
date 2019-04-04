@@ -1,0 +1,148 @@
+Labs
+Using AWS Lambda with Go
+12 Apr 2019
+
+superluminar.io
+
+* Lab 0 - Form teams
+
+- Form teams of 2-3.
+- For each lab write down key questions (max 2!).
+- Stick them to the wall.
+- We'll go through the questions after each lab.
+
+
+* Lab 1
+
+.link https://go-serverless-workshop.com
+
+
+- Bootstrap SAM app
+- Build and deploy the app
+- Run / invoke the functions
+
+* Lab 2
+
+- Modify the `hello-world` function to accept a `name` parameter and respond with a greeting
+- Create some log messages
+- Find out how to display log messages
+
+* Lab 3
+
+Implement a URL shortener using `DynamoDB` for storage with two functions.
+
+- One function to create shortened URLs
+
+ curl -v -XPOST -d url=https://zurich.serverlessdays.io https://$ENDPOINT/create-url
+
+ > POST /create-url HTTP/1.1
+ < HTTP/1.1 Created 201
+ Created short url: http://$ENDPOINT/${short-url}
+
+- One function to retrieve and redirect to the shortened URL
+
+ curl -v http://$ENDPOINT/${short-url}
+
+ > GET /${short-url} HTTP/1.1
+ < HTTP/1.1 302 Found
+ < Location: https://zurich.serverlessdays.io
+
+* Things you'll need
+
+- Use the `aws-sdk-go` package to talk to DynamoDB
+- Create a DynamoDB table using CloudFormation
+- Give your Lambda functions permissions to access the DynamoDB table with IAM
+- Inject the DynamoDB table via environment variables
+- Use path parameters with API Gateway and Lambda
+
+* Using DynamoDB via the aws-sdk-go
+ import (
+ 	"github.com/aws/aws-sdk-go/aws"
+ 	"github.com/aws/aws-sdk-go/aws/session"
+ 	"github.com/aws/aws-sdk-go/service/dynamodb"
+ )
+.code ./slsdays-zurich/create-url/main.go 48,61
+
+* Creating a DynamoDB table with Cloudformation
+
+`serverless.yml` supports arbitrary Cloudformation resources under the `resources` key.
+
+ resources:
+   Resources:
+     DynamoDBTable:
+       Type: AWS::DynamoDB::Table
+       Properties:
+         TableName: url-shortener
+         KeySchema:
+           - AttributeName: "id"
+             KeyType: "HASH"
+         ProvisionedThroughput:
+           ReadCapacityUnits: "1"
+           WriteCapacityUnits: "1"
+         AttributeDefinitions:
+           - AttributeName: "id"
+             AttributeType: "S"
+
+* Give your Lambda functions permissions to access DynamoDB
+- Every AWS Lambda function needs permission to interact with other AWS infrastructure resources
+- Permissions are set via an AWS IAM Role which is automatically created and is shared by all of your functions
+- You can set additional permissions via the `serverless.yml` file
+
+ provider:
+   iamRoleStatements:
+     -  Effect: "Allow"
+        Action:
+          - "dynamodb:PutItem"
+          - "dynamodb:GetItem"
+        Resource:
+          Fn::GetAtt:
+            - DynamoDBTable
+            - Arn
+
+* Inject the DynamoDB table via environment variables
+
+ provider:
+   environment:
+     DYNAMO_DB_TABLE:
+       Ref: DynamoDBTable # References resource by name
+
+ resources:
+   Resources:
+     DynamoDBTable:
+       Type: AWS::DynamoDB::Table
+
+* Configure path parameters for your function
+
+ get-url:
+   handler: bin/get-url
+   events:
+     - http:
+         path: /{short_url}
+         method: get
+         request:
+           parameters:
+             paths:
+               short_url: true
+
+* Lab 4
+
+- Write a unit test to mock out AWS dependencies
+- Use `github.com/stretchr/testify/mock` (or what ever framework you prefer)
+- Test what happens when your handler can't find the short url in your storage
+
+* Lab 5
+
+- Create a new function
+- Create a new table
+- Hook up the function to the DynamoDB stream of the url-shortener table
+- Fetch preview using e.g. https://github.com/badoux/goscraper
+- Save the preview to the new table
+
+
+* Lab 6
+
+- Install and activate the tracing plugin
+- Give IAM permissions to your function to use X-Ray
+- Instrument your code (use version > v1.0.0-rc.1 of `github.com/aws/aws-xray-sdk-go`)
+- Generate some traces by calling your function
+- Checkout your traces using the AWS Console
