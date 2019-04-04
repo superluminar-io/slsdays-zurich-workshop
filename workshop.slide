@@ -84,18 +84,22 @@ Get the API endpoint
  $ curl https://sbu69ucglj.execute-api.eu-central-1.amazonaws.com/Prod/hello/
    Hello, 19.145.25.181
 
-#* How does it work?
-#You configure a Serverless project using `serverless.yml`.
-#
-#.code ./serverless.yml 1,20
-#
-#* What are functions?
-#- Functions have a name
-#- Functions have a handler - the executable
-#- Functions are triggered by events - e.g. the HTTP request
-#
-#.code ./serverless.yml /functions:/,$
-#
+* How does it work?
+You configure a SAM project using `template.yaml`.
+
+.code ./slsdays-zurich/template.yaml 1,14
+
+* How does it work?
+
+.code ./slsdays-zurich/template.yaml 31,
+
+* What are functions?
+- Functions have a name
+- Functions have a handler - the executable
+- Functions are triggered by events - e.g. the HTTP request
+
+.code ./slsdays-zurich/template.yaml 13,29
+
 #* Where is the code?
 #
 #- We include the compiled binaries
