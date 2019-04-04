@@ -12,7 +12,7 @@ Resources:
   HelloWorldFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://slsdays-zurich/56d6f7ac94a0e8508d61278b952d54e1
+      CodeUri: s3://slsdays-zurich/b6a5083f8016e84ae0fe9360bbb9e9d9
       Handler: hello-world
       Runtime: go1.x
       Tracing: Active
