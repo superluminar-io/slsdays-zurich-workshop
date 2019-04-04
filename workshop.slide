@@ -203,16 +203,10 @@ You configure a SAM project using `template.yaml`.
 
 * SAM and Cloudformation
 
-- Behind the scenes `Serverless` uses `Cloudformation`
-- All state goes into the `.serverless` folder
-
- $ tree .serverless
- .serverless
- ├── cloudformation-template-create-stack.json  Cloudformation stacks
- ├── cloudformation-template-update-stack.json
- ├── godays-workshop.zip  Our zipped up binaries
- └── serverless-state.json
-
- 0 directories, 4 files
+- SAM is an extension of CloudFormation
+- can use all CloudFormation keywords / elements
+- create CloudFormation Stack in the background
 
 * The Cloudformation stack
+
+.image ./images/cf-stack.png _ 920
