@@ -1,0 +1,310 @@
+ServerlessDays Zürich 2019
+Using AWS Lambda with Go
+12 Apr 2019
+
+superluminar.io
+
+* Prequisites
+
+- Go installation
+- Python installation
+- Working AWS credentials
+- dep
+
+* Install SAM CLI
+
+via Homebrew
+
+ $ brew tap aws/tap
+ $ brew install aws-sam-cli
+
+via python pip
+
+ $ pip install --user aws-sam-cli
+
+.link https://aws.amazon.com/serverless/sam/#Install_SAM_CLI
+
+* Our first application
+
+ $ cd $GOPATH/src
+ $ sam init --runtime go1.x --name slsdays-zurich
+ [+] Initializing project structure...
+
+ Project generated: ./slsdays-zurich
+
+ Steps you can take next within the project folder
+ ===================================================
+ [*] Install dependencies
+ [*] Invoke Function: sam local invoke HelloWorldFunction --event event.json
+ [*] Start API Gateway locally: sam local start-api
+
+ Read slsdays-zurich/README.md for further instructions
+
+ [*] Project initialization is now complete
+
+* Our first application
+
+ $ tree
+   .
+   ├── Makefile
+   ├── README.md
+   ├── hello-world
+   │   ├── main.go
+   │   └── main_test.go
+   └── template.yaml
+
+* Build it!
+#
+# $ make build
+# dep ensure -v
+# Root project is "github.com/superluminar-io/godays-workshop"
+#  2 transitively valid internal packages
+#  2 external packages imported from 1 projects
+# (0)   ✓ select (root)
+# (1)	? attempt github.com/aws/aws-lambda-go with 2 pkgs; 14 versions to try
+# (1)	    try github.com/aws/aws-lambda-go@v1.8.1
+# (1)	✓ select github.com/aws/aws-lambda-go@v1.8.1 w/4 pkgs
+#   ✓ found solution with 4 packages from 1 projects
+#
+# Solver wall times by segment:
+#   ...
+#
+#   TOTAL: 1.805310905s
+#
+# (1/1) Wrote github.com/aws/aws-lambda-go@v1.8.1
+# env GOOS=linux go build -ldflags="-s -w" -o bin/hello hello/main.go
+# env GOOS=linux go build -ldflags="-s -w" -o bin/world world/main.go
+#
+#* Deploy it!
+# $ make deploy
+#   rm -rf ./bin ./vendor Gopkg.lock
+#   dep ensure -v
+#   Root project is "github.com/superluminar-io/godays-workshop"
+#    6 transitively valid internal packages
+#    10 external packages imported from 4 projects
+#   (0)   ✓ select (root)
+#   (1)	? attempt github.com/aws/aws-lambda-go with 2 pkgs; 14 versions to try
+#   (1)	    try github.com/aws/aws-lambda-go@v1.8.1
+#   (1)	✓ select github.com/aws/aws-lambda-go@v1.8.1 w/4 pkgs
+#   (2)	? attempt github.com/sirupsen/logrus with 1 pkgs; 57 versions to try
+#   (2)	    try github.com/sirupsen/logrus@v1.3.0
+#   (2)	✓ select github.com/sirupsen/logrus@v1.3.0 w/1 pkgs
+#   (3)	? attempt github.com/konsorten/go-windows-terminal-sequences with 1 pkgs; 2 versions to try
+#   ...
+#   env GOOS=linux go build -ldflags="-s -w" -o bin/hello hello/main.go
+#   env GOOS=linux go build -ldflags="-s -w" -o bin/world world/main.go
+#
+#* Deploy it!
+#
+#  ...
+#  sls deploy --verbose
+#  Serverless: Stack update finished...
+#  Service Information
+#  service: godays-workshop
+#  stage: dev
+#  region: eu-central-1
+#  stack: godays-workshop-dev
+#  api keys:
+#    None
+#  endpoints:
+#    GET - https://7gxzpfmtk5.execute-api.eu-central-1.amazonaws.com/dev/hello
+#    GET - https://7gxzpfmtk5.execute-api.eu-central-1.amazonaws.com/dev/world
+#  functions:
+#    hello: godays-workshop-dev-hello
+#    world: godays-workshop-dev-world
+#  layers:
+#    None
+#
+#* Curl it!
+# $ curl https://7gxzpfmtk5.execute-api.eu-central-1.amazonaws.com/dev/hello
+# {"message":"Go Serverless v1.0! Your function executed successfully!"}%
+#
+#* How does it work?
+#You configure a Serverless project using `serverless.yml`.
+#
+#.code ./serverless.yml 1,20
+#
+#* What are functions?
+#- Functions have a name
+#- Functions have a handler - the executable
+#- Functions are triggered by events - e.g. the HTTP request
+#
+#.code ./serverless.yml /functions:/,$
+#
+#* Where is the code?
+#
+#- We include the compiled binaries
+#- We exclude everything else (the source code)
+#
+#.code ./serverless.yml /package:/,/method:/
+#
+#* What does it look like?
+#
+#.code ./hello/main.go /Handler/,$
+#
+#* Handling incoming HTTP requests
+#
+#- Configure your function to react to the `POST` method
+#
+#.code ./serverless.yml /world/,$
+#
+#* Add HTTP request object to your func
+#
+#.code ./world/main.go /Handler/,$
+#
+#* Build and deploy
+#
+# $ make
+# ...
+# $ sls deploy
+# Service Information
+# service: godays-workshop
+# stage: dev
+# region: eu-central-1
+# stack: godays-workshop-dev
+# api keys:
+#   None
+# endpoints:
+#   GET - https://7gxzpfmtk5.execute-api.eu-central-1.amazonaws.com/dev/hello
+#   POST - https://7gxzpfmtk5.execute-api.eu-central-1.amazonaws.com/dev/world
+# functions:
+#   hello: godays-workshop-dev-hello
+#   world: godays-workshop-dev-world
+# layers:
+#   None
+#
+#* Curl it again
+#
+# $ curl -s -XPOST -d foo=bar https://7gxzpfmtk5.execute-api.eu-central-1.amazonaws.com/dev/world | jq .
+# {
+#   "message": "Go Serverless v1.0! Your function executed successfully!",
+#   "requestBody": "foo=bar",
+#   "requestHeaders": {
+#     "Accept": "*/*",
+#     "CloudFront-Forwarded-Proto": "https",
+#     "CloudFront-Is-Desktop-Viewer": "true",
+#     "CloudFront-Is-Mobile-Viewer": "false",
+#     "CloudFront-Is-SmartTV-Viewer": "false",
+#     "CloudFront-Is-Tablet-Viewer": "false",
+#     "CloudFront-Viewer-Country": "DE",
+#     "Host": "7gxzpfmtk5.execute-api.eu-central-1.amazonaws.com",
+#     "User-Agent": "curl/7.54.0",
+#     "Via": "2.0 41232b1248b5064ae14550b383a46695.cloudfront.net (CloudFront)",
+#     "X-Amz-Cf-Id": "Fw5dIivFMFTS_62EO1xvrRWqpvtaaTqbnPQp10AKIIZYI-gVGJOxSg==",
+#     "X-Amzn-Trace-Id": "Root=1-5c404a1b-c4cec7215afa931529d7c60c",
+#     "X-Forwarded-For": "213.61.151.75, 70.132.42.147",
+#     "X-Forwarded-Port": "443",
+#     "X-Forwarded-Proto": "https",
+#     "content-type": "application/x-www-form-urlencoded"
+#   }
+# }
+#
+#* Invoking a function directly
+#
+# $ sls invoke -f world
+# {
+#     "statusCode": 200,
+#     "headers": {
+#         "Content-Type": "application/json"
+#     },
+#     "multiValueHeaders": null,
+#     "body": '{"message":"...","requestBody":"","requestHeaders":null}'
+# }
+#
+#* Where are our logs?
+#
+#- Logs are aggregated via `Cloudwatch Logs`
+#- Each Lambda function logs into its own `LogGroup`
+#- Anything you write on `STDOUT` shows up in the logs
+#
+# $ serverless logs -r eu-central-1 -f hello
+# START RequestId: 9847ec27-1381-11e9-83e5-638bc1812824 Version: $LATEST
+# END RequestId: 9847ec27-1381-11e9-83e5-638bc1812824
+# REPORT RequestId: 9847ec27-1381-11e9-83e5-638bc1812824	Duration: 7.57 ms	Billed Duration: 100 ms 	Memory Size: 1024 MB	Max Memory Used: 46 MB
+#
+#* An example
+#
+#.code ./logging/main.go 11,24
+#
+#* The log output
+#
+# $ serverless logs -f hello
+# START RequestId: 14d850c7-1315-4222-b11c-237fe3ac0a7e Version: $LATEST
+# Hi, this ends up in the logs.
+# 2019/01/17 09:43:36 This will also end up in the logs.
+# END RequestId: 14d850c7-1315-4222-b11c-237fe3ac0a7e
+# REPORT RequestId: 14d850c7-1315-4222-b11c-237fe3ac0a7e	Duration: 0.44 ms	Billed Duration: 100 ms 	Memory Size: 1024 MB	Max Memory Used: 22 MB
+#
+#* Where can I find metrics?
+#- Metrics are collected in `CloudWatch`
+#- Metrics recorded are `Invocations`, `Errors`, `Duration` etc.
+#- You access these via the AWS console
+#.image ./images/cloudwatch.png 300 _
+#.link https://docs.aws.amazon.com/lambda/latest/dg/monitoring-functions-metrics.html Lambda Metrics
+#
+#* The underlying architecture
+#.image ./images/simple-web-service.png
+#.caption _Image_ by [[https://www.jeremydaly.com/serverless-microservice-patterns-for-aws/][Jeremy Daly]]
+#
+#.link https://www.jeremydaly.com/serverless-microservice-patterns-for-aws/ Serverless Design Patterns
+#
+#* API Gateway
+#
+#- Unified endpoint
+#- Multiple backends (Lambda, EC2, self-hosted)
+#- Throttling
+#- Caching
+#- Schema transformation (XML->JSON etc.)
+#- Authentication
+#- Cognito user pools
+#
+#* Lambda
+#
+#- Function as a service
+#- Event driven
+#- Pay per execution time per 100 ms
+#- Max execution time: 15 minutes
+#- Multiple languages (Go, Python, Java, NodeJS)
+#- Layers (like a Docker image)
+#- Custom run times
+#- Scale memory/CPU
+#- BEWARE: cold starts
+#
+#* DynamoDB
+#
+#- NoSQL database
+#- schemaless
+#- Streams
+#- Indices
+#- Backup
+#- Transactions
+#
+#* Serverless and Cloudformation
+#
+#- Behind the scenes `Serverless` uses `Cloudformation`
+#- All state goes into the `.serverless` folder
+#
+# $ tree .serverless
+# .serverless
+# ├── cloudformation-template-create-stack.json # Cloudformation stacks
+# ├── cloudformation-template-update-stack.json
+# ├── godays-workshop.zip # Our zipped up binaries
+# └── serverless-state.json
+#
+# 0 directories, 4 files
+#
+#* The Cloudformation stack
+#
+#.image ./images/cloudformation-template-update-stack-designer.png 600 _
+#
+#* Deleting our application
+#
+# $ serverless remove
+# Serverless: Getting all objects in S3 bucket...
+# Serverless: Removing objects in S3 bucket...
+# Serverless: Removing Stack...
+# Serverless: Checking Stack removal progress...
+# ....................
+# Serverless: Stack removal finished...
+
+
