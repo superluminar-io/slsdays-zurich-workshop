@@ -100,17 +100,22 @@ You configure a SAM project using `template.yaml`.
 
 .code ./slsdays-zurich/template.yaml 13,29
 
-#* Where is the code?
-#
-#- We include the compiled binaries
-#- We exclude everything else (the source code)
-#
-#.code ./serverless.yml /package:/,/method:/
-#
-#* What does it look like?
-#
-#.code ./hello/main.go /Handler/,$
-#
+* Where is the code?
+
+- We reference the path to the source code
+- We specify our handler function
+
+.code ./slsdays-zurich/template.yaml 16,18
+
+* What does it look like?
+
+.code ./slsdays-zurich/hello-world/main.go /handler/,47
+
+* What does it look like?
+
+.code ./slsdays-zurich/hello-world/main.go /handler/3,12
+.code ./slsdays-zurich/hello-world/main.go /handler/49,
+
 #* Handling incoming HTTP requests
 #
 #- Configure your function to react to the `POST` method

@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	"github.com/aws/aws-lambda-go/events"
-	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-lambda-go/lambda" // HL
 )
 
 var (
@@ -21,7 +21,7 @@ var (
 	ErrNon200Response = errors.New("Non 200 Response found")
 )
 
-func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) { // HL
 	resp, err := http.Get(DefaultHTTPGetAddress)
 	if err != nil {
 		return events.APIGatewayProxyResponse{}, err
@@ -40,7 +40,7 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		return events.APIGatewayProxyResponse{}, ErrNoIP
 	}
 
-	return events.APIGatewayProxyResponse{
+	return events.APIGatewayProxyResponse{ // HL
 		Body:       fmt.Sprintf("Hello, %v", string(ip)),
 		StatusCode: 200,
 	}, nil
