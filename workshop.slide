@@ -54,67 +54,24 @@ via python pip
    └── template.yaml
 
 * Build it!
-#
-# $ make build
-# dep ensure -v
-# Root project is "github.com/superluminar-io/godays-workshop"
-#  2 transitively valid internal packages
-#  2 external packages imported from 1 projects
-# (0)   ✓ select (root)
-# (1)	? attempt github.com/aws/aws-lambda-go with 2 pkgs; 14 versions to try
-# (1)	    try github.com/aws/aws-lambda-go@v1.8.1
-# (1)	✓ select github.com/aws/aws-lambda-go@v1.8.1 w/4 pkgs
-#   ✓ found solution with 4 packages from 1 projects
-#
-# Solver wall times by segment:
-#   ...
-#
-#   TOTAL: 1.805310905s
-#
-# (1/1) Wrote github.com/aws/aws-lambda-go@v1.8.1
-# env GOOS=linux go build -ldflags="-s -w" -o bin/hello hello/main.go
-# env GOOS=linux go build -ldflags="-s -w" -o bin/world world/main.go
-#
-#* Deploy it!
-# $ make deploy
-#   rm -rf ./bin ./vendor Gopkg.lock
-#   dep ensure -v
-#   Root project is "github.com/superluminar-io/godays-workshop"
-#    6 transitively valid internal packages
-#    10 external packages imported from 4 projects
-#   (0)   ✓ select (root)
-#   (1)	? attempt github.com/aws/aws-lambda-go with 2 pkgs; 14 versions to try
-#   (1)	    try github.com/aws/aws-lambda-go@v1.8.1
-#   (1)	✓ select github.com/aws/aws-lambda-go@v1.8.1 w/4 pkgs
-#   (2)	? attempt github.com/sirupsen/logrus with 1 pkgs; 57 versions to try
-#   (2)	    try github.com/sirupsen/logrus@v1.3.0
-#   (2)	✓ select github.com/sirupsen/logrus@v1.3.0 w/1 pkgs
-#   (3)	? attempt github.com/konsorten/go-windows-terminal-sequences with 1 pkgs; 2 versions to try
-#   ...
-#   env GOOS=linux go build -ldflags="-s -w" -o bin/hello hello/main.go
-#   env GOOS=linux go build -ldflags="-s -w" -o bin/world world/main.go
-#
-#* Deploy it!
-#
-#  ...
-#  sls deploy --verbose
-#  Serverless: Stack update finished...
-#  Service Information
-#  service: godays-workshop
-#  stage: dev
-#  region: eu-central-1
-#  stack: godays-workshop-dev
-#  api keys:
-#    None
-#  endpoints:
-#    GET - https://7gxzpfmtk5.execute-api.eu-central-1.amazonaws.com/dev/hello
-#    GET - https://7gxzpfmtk5.execute-api.eu-central-1.amazonaws.com/dev/world
-#  functions:
-#    hello: godays-workshop-dev-hello
-#    world: godays-workshop-dev-world
-#  layers:
-#    None
-#
+
+ $ make build
+ GOOS=linux GOARCH=amd64 go build -o hello-world/hello-world ./hello-world
+
+* AWS Setup
+
+Configure your aws cli
+
+ $ aws configure --profile=slsdays-zurich
+
+Create a S3 bucket for deployment
+
+ $ aws s3 mb s3://slsdays-zurich
+
+* Deploy it!
+
+.code assets/deploy.txt
+
 #* Curl it!
 # $ curl https://7gxzpfmtk5.execute-api.eu-central-1.amazonaws.com/dev/hello
 # {"message":"Go Serverless v1.0! Your function executed successfully!"}%

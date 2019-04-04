@@ -1,0 +1,15 @@
+$ sam package \ // HL
+   --profile slsdays-zurich \
+   --output-template-file packaged.yaml \
+   --s3-bucket slsdays-zurich
+Uploading to 56d6f7ac94a0e8508d61278b952d54e1  4910377 / 4910377.0  (100.00%)
+Successfully packaged artifacts and wrote output template to file packaged.yaml.
+
+$ sam deploy \ // HL
+   --profile slsdays-zurich \
+   --template-file packaged.yaml \
+   --stack-name slsdays-zurich \
+   --capabilities CAPABILITY_IAM
+Waiting for changeset to be created..
+Waiting for stack create/update to complete
+Successfully created/updated stack - slsdays-zurich
