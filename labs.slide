@@ -16,18 +16,19 @@ superluminar.io
 
 .link https://go-serverless-workshop.com
 
+Step 1
 
-- Bootstrap SAM app
+- clone https://github.com/superluminar-io/url-shortener
 - Build and deploy the app
 - Run / invoke the functions
 
-* Lab 2
+Step 2
 
 - Modify the `hello-world` function to accept a `name` parameter and respond with a greeting
 - Create some log messages
 - Find out how to display log messages
 
-* Lab 3
+* Lab 2
 
 Implement a URL shortener using `DynamoDB` for storage with two functions.
 
@@ -70,34 +71,22 @@ Implement a URL shortener using `DynamoDB` for storage with two functions.
  resources:
    Resources:
      DynamoDBTable:
-       Type: AWS::DynamoDB::Table
+       Type: AWS::Serverless::SimpleTable
        Properties:
-         TableName: url-shortener
-         KeySchema:
-           - AttributeName: "id"
-             KeyType: "HASH"
+         PrimaryKey:
+           Name: id
+           Type: String
          ProvisionedThroughput:
-           ReadCapacityUnits: "1"
-           WriteCapacityUnits: "1"
-         AttributeDefinitions:
-           - AttributeName: "id"
-             AttributeType: "S"
+           ReadCapacityUnits: 5
+           WriteCapacityUnits: 5
 
 * Give your Lambda functions permissions to access DynamoDB
 - Every AWS Lambda function needs permission to interact with other AWS infrastructure resources
 - Permissions are set via an AWS IAM Role which is automatically created and is shared by all of your functions
 - You can set additional permissions via the `serverless.yml` file
 
- provider:
-   iamRoleStatements:
-     -  Effect: "Allow"
-        Action:
-          - "dynamodb:PutItem"
-          - "dynamodb:GetItem"
-        Resource:
-          Fn::GetAtt:
-            - DynamoDBTable
-            - Arn
+ #TODO
+ https://github.com/awslabs/serverless-application-model/blob/master/docs/policy_templates.rst#policy-templates
 
 * Inject the DynamoDB table via environment variables
 
@@ -124,25 +113,10 @@ Implement a URL shortener using `DynamoDB` for storage with two functions.
              paths:
                short_url: true
 
-* Lab 4
-
-- Write a unit test to mock out AWS dependencies
-- Use `github.com/stretchr/testify/mock` (or what ever framework you prefer)
-- Test what happens when your handler can't find the short url in your storage
-
-* Lab 5
+* Lab 3
 
 - Create a new function
 - Create a new table
 - Hook up the function to the DynamoDB stream of the url-shortener table
 - Fetch preview using e.g. https://github.com/badoux/goscraper
 - Save the preview to the new table
-
-
-* Lab 6
-
-- Install and activate the tracing plugin
-- Give IAM permissions to your function to use X-Ray
-- Instrument your code (use version > v1.0.0-rc.1 of `github.com/aws/aws-xray-sdk-go`)
-- Generate some traces by calling your function
-- Checkout your traces using the AWS Console
