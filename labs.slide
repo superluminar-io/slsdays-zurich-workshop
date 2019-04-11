@@ -6,29 +6,33 @@ superluminar.io
 
 * Lab 0 - Form teams
 
+.link https://tlk.io/slsdays-zurich
+
 - Form teams of 2-3.
-- For each lab write down key questions (max 2!).
-- Stick them to the wall.
+- For each lab write down key questions (max 2 per Team).
+- Post them to the chat.
 - We'll go through the questions after each lab.
 
 
-* Lab 1
+* Lab 1 - Start out
 
 .link https://github.com/superluminar-io/slsdays-zurich-workshop/blob/master/links.md
 
-Step 1
-
 - clone https://github.com/superluminar-io/url-shortener
 - Build and deploy the app
-- Run / invoke the functions
+- Invoke the functions
 
-Step 2
+* Lab 2 - A bit more advanced
 
-- Modify the `hello-world` function to accept a `name` parameter and respond with a greeting
+- Create a function that:
+1. listens to POST request
+2. parses a name from the body and
+3. responds with Hello $name
+
 - Create some log messages
 - Find out how to display log messages
 
-* Lab 2
+* Lab 3 - URL Shortener
 
 Implement a URL shortener using `DynamoDB` for storage with two functions.
 
@@ -113,10 +117,14 @@ Implement a URL shortener using `DynamoDB` for storage with two functions.
              paths:
                short_url: true
 
-* Lab 3
+* Lab 4 - DynamoDB Streams
 
 - Create a new function
 - Create a new table
-- Hook up the function to the DynamoDB stream of the url-shortener table
+- Hook up the new function to the DynamoDB stream of the url-shortener table
 - Fetch preview using e.g. https://github.com/badoux/goscraper
-- Save the preview to the new table
+- Save the preview to the new *preview* table
+
+Hint:
+
+- Add "`Properties.StreamSpecification.StreamViewType:` `NEW_IMAGE`" to the *url-shortener* *table*
