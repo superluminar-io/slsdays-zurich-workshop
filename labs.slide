@@ -128,3 +128,17 @@ Implement a URL shortener using `DynamoDB` for storage with two functions.
 Hint:
 
 - Add "`Properties.StreamSpecification.StreamViewType:` `NEW_IMAGE`" to the *url-shortener* *table*
+
+* Lab 5 - Tracing with X-Ray
+
+- Activate Tracing via SAM
+- Instrument your code according to https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-go-awssdkclients.html
+- Generate some traffic
+- Check the X-Ray Console
+- *Cave:* You must use `v1.0.0-rc.11` of aws-xray-sdk-go
+
+Bonus:
+
+- Activate Tracing for API Gateway
+- use dedicated `AWS::Serverless::Api` Resource
+- use `RestApiId:` `!Ref` `API` in your event properties
